@@ -1,0 +1,50 @@
+{% extends 'user/index.html' %}
+{% load static %}
+{% block content %}
+
+{% if not cart_items%}
+<p>Your cart is empty</p>
+{%else%}
+<table>
+          <tr>
+                    <th>#</th>
+                    <th>book name</th>
+                    <th>author</th>
+                    <th>price</th>
+                    <th>Action</th>
+          </tr>
+          {% for item in cart_items  %}
+          <tr>
+                    <td>{{ for count }}</td>
+                    <td>{{ item.book.title }}</td>
+                    <td>{{ item.book.author }}</td>
+                    <td>{{ item.book.price }}</td>
+                    <td><a href="{% url 'remove_cart' item.id %}">Remove</a></td>
+                    {% if item.quantity <= item.book.quantity %}
+                              <td><a href="{% url 'decrease_quantity' item.id %}">-</a></td>
+                              <td><input type="number" name="quantity" value="{{ item.quantity }}"></td>
+                              <td><a href="{% url 'increase_quantity' item.id %}">+</a></td>
+                    {% endif %}
+          </tr>
+          {% endfor %}
+</table>
+{% endif %}
+<form action="{% url 'create-checkout-session' %}" method="post">
+          {% csrf_token %}
+          <div class="container px-4 text-center">
+                    <div class="row gx-5">
+                              <div class="col">
+                                        <div class="p-3">
+                                              <b>Total Products:</b> {{ total_items }}    
+                                        </div>
+                                        <div class="p-3">
+                                                  <b>Total Price:</b> {{ total_price }}    
+                                        </div>
+                                        <div class="p-3">
+                                                  <button id="checkout-button" type="submit" class="btn btn-success">Check out</button>   
+                                        </div>
+                              </div>
+                    </div>
+          </div>
+</form>
+{% endblock %}

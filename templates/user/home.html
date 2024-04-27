@@ -1,0 +1,54 @@
+{% extends 'user/index.html' %}
+{% load static %}
+{% block content %}
+<form class="d-none d-md-flex ms-4" method="get" action="{% url 'usersearch' %}">
+  <div class="search">
+    <input name="q" placeholder="Search..." type="text">
+    <button type="submit">Go</button>
+  </div>
+</form>
+{% if query == "" %}
+<div class="card-container" style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+  {% for book in books %}
+    <div class="card" style="width: 18rem; margin-bottom: 30px;">
+      <img src="{{ book.image.url }}" class="card-img-top" height="70%" alt="..." />
+      <div class="card-body">
+        <h4 class="card-title">{{ book.title }}</h4>
+        <p class="card-text">
+          Author: <b>{{ book.author }}</b>
+        </p>
+        <p class="card-text">
+          Price: <b>{{ book.price }}/-</b>
+        </p>
+        <p class="card-text">
+          Quantity: <b>{{ book.quantity }}</b>
+        </p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card-container" style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+  {% for book in books %}
+    <div class="card" style="width: 18rem; margin-bottom: 30px;">
+      <img src="{{ book.image.url }}" class="card-img-top" height="70%" alt="..." />
+      <div class="card-body">
+        <h4 class="card-title">{{ book.title }}</h4>
+        <p class="card-text">
+          Author: <b>{{ book.author }}</b>
+        </p>
+        <p class="card-text">
+          Price: <b>{{ book.price }}/-</b>
+        </p>
+        <p class="card-text">
+          Quantity: <b>{{ book.quantity }}</b>
+        </p>
+        <p class="card-text">
+          <a href="{% url 'addtocart' book.id %}">Add to cart</a>
+        </p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
