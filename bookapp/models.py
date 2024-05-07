@@ -9,6 +9,7 @@ class Author(models.Model):
         return '{}'.format(self.name)
 
 class Book(models.Model):
+    id = models.AutoField(primary_key=True)
     title=models.CharField(max_length=200)
     price=models.IntegerField()
     quantity=models.IntegerField()

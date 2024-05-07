@@ -1,8 +1,10 @@
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
+from django.conf import settings
 from django.shortcuts import render, redirect
 from bookapp.models import Book
 from .models import CartItem , Cart
+from guestapp.models import userTable
 import stripe
 # Create your views here.
 
@@ -25,20 +27,22 @@ def search(request):
 def add_to_cart(request,book_id):
     book=Book.objects.get(id=book_id)
     if book.quantity>0:
-        cart,created = Cart.objects.get_or_create(user=request.user)
-        cart_item,item_created = CartItem.object.get_or_create(cart=cart,book=book)
+        user=userTable.objects.get(username=request.user)
+        cart,created = Cart.objects.get_or_create(user=user)
+        cart_item,item_created = CartItem.objects.get_or_create(cart=cart,book=book)
         if not item_created:
             cart_item.quantity+=1
             cart_item.save()
     return redirect('viewcart')
 
 def view_cart(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    user=userTable.objects.get(username=request.user)
+    cart, created = Cart.objects.get_or_create(user=user)
     cart_items = cart.cartitem_set.all()
     total_price = sum(item.book.price * item.quantity for item in cart_items)
     total_items = cart_items.count()
     context = {'cart_items': cart_items, 'total_price': total_price, 'total_items': total_items}
-    return render(request, 'cart.html', context)
+    return render(request, 'user/cart.html', context)
 
 def increase_quantity(request,item_id):
     cart_item=CartItem.objects.get(id=item_id)
@@ -86,8 +90,8 @@ def create_checkout_session(request):
                     payment_method_type=['card'],
                     line_items=line_items,
                     mode='payment',
-                    success_url=request.bulid_absolute_url(reverse('success')),
-                    cancel_url=request.bulid_absolute_url(reverse('cancel'))
+                    success_url=request.build_absolute_uri(reverse('success')),
+                    cancel_url=request.build_absolute_uri(reverse('cancel'))
                 )
                 return redirect(checkout_session.url,code=303)
 

@@ -15,7 +15,7 @@
           </tr>
           {% for item in cart_items  %}
           <tr>
-                    <td>{{ for count }}</td>
+                    <td>{{ forloop.counter }}</td>
                     <td>{{ item.book.title }}</td>
                     <td>{{ item.book.author }}</td>
                     <td>{{ item.book.price }}</td>

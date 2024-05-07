@@ -4,6 +4,7 @@ from guestapp.models import userTable
 # Create your models here.
 
 class Cart(models.Model):
+          id = models.AutoField(primary_key=True)
           user = models.OneToOneField(userTable,on_delete=models.CASCADE)
           item = models.ManyToManyField(Book)
           

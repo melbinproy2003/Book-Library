@@ -1,7 +1,9 @@
+from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.shortcuts import render, redirect
 from . models import userTable,loginTable
 from django.contrib import messages, auth
+from django.urls import reverse
 
 # Create your views here.
 def userregistration(request):
@@ -34,23 +36,23 @@ def userlogin(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        Luser=loginTable.objects.filter(username=username,password=password,type='user').exists()
-        # try:
-        if Luser is not None:
-                Luser_details = loginTable.objects.get(username=username,password=password)
-                Luser_name = Luser_details.username
-                type = Luser_details.type
-                if type == 'user':
-                    request.session['username']=Luser_name
-                    return redirect('userhome')
-                elif type == 'admin':
-                    request.session['username'] = Luser_name
-                    return redirect('webadmin')
+        
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            # User is valid, and the password matches
+            login(request, user)
+            # Redirect based on user type
+            if user.groups.filter(name='admin').exists():
+                return redirect('webadmin')
+            else:
+                return redirect('userhome')
         else:
-                messages.error(request,'invalid username or password')
-        # except:
-        #     messages.error(request,'in the exception')
-    return render(request,'guest/signin.html')
+            # Authentication failed
+            messages.error(request, 'Invalid username or password')
+
+    # GET request or failed POST request
+    return render(request, 'guest/signin.html')
 
 def userhome(request):
     name = request.session['username']
