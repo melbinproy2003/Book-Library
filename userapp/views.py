@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from django.conf import settings
@@ -67,33 +68,34 @@ def remove_from_cart(request,item_id):
     return redirect('viewcart')
 
 def create_checkout_session(request):
-    cart_items=CartItem.objects.all()
+    cart_items = CartItem.objects.all()
     if cart_items:
-        stripe.api_key=settings.STRIPE_SECRET_KEY
-        if request.method=='POST':
-            line_items=[]
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        if request.method == 'POST':
+            line_items = []
             for cart_item in cart_items:
                 if cart_item.book:
-                    line_item={
-                        'price_data':{
-                            'currency':'INR',
-                            'unit_amount':int(cart_item.book.price * 100),
-                            'product_data':{
-                                'name':cart_item.book.title
+                    line_item = {
+                        'price_data': {
+                            'currency': 'INR',
+                            'unit_amount': int(cart_item.book.price * 100),
+                            'product_data': {
+                                'name': cart_item.book.title,
                             },
                         },
-                        'quantity':1
+                        'quantity': 1,
                     }
                     line_items.append(line_item)
             if line_items:
-                checkout_session=stripe.checkout.Session.create(
-                    payment_method_type=['card'],
+                checkout_session = stripe.checkout.Session.create(
+                    payment_method_types=['card'],  # Corrected the key from `payment_method_type` to `payment_method_types`
                     line_items=line_items,
                     mode='payment',
                     success_url=request.build_absolute_uri(reverse('success')),
-                    cancel_url=request.build_absolute_uri(reverse('cancel'))
+                    cancel_url=request.build_absolute_uri(reverse('cancel')),
                 )
-                return redirect(checkout_session.url,code=303)
+                return redirect(checkout_session.url, code=303)
+    return redirect('cart')  # Redirect to cart page if no cart items or GET request
 
 def success(request):
     cart_items=CartItem.objects.all()
