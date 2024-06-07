@@ -1,4 +1,3 @@
-from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.shortcuts import render, redirect
 from . models import userTable,loginTable
@@ -37,17 +36,17 @@ def userlogin(request):
         username = request.POST['username']
         password = request.POST['password']
         
-        # Authenticate the user
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            # User is valid, and the password matches
-            login(request, user)
-            # Redirect based on user type
-            if user.groups.filter(name='admin').exists():
+        # Manually authenticate the user
+        try:
+            user = loginTable.objects.get(username=username, password=password)
+            # Check user type
+            if user.type == 'admin':
+                request.session['username'] = user.username
                 return redirect('webadmin')
             else:
+                request.session['username'] = user.username
                 return redirect('userhome')
-        else:
+        except loginTable.DoesNotExist:
             # Authentication failed
             messages.error(request, 'Invalid username or password')
 
